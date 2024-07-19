@@ -1,0 +1,15 @@
+{
+  "name": "portal2-tournament",
+  "module": "main.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2",
+    "openid": "^2.0.12"
+  }
+}
