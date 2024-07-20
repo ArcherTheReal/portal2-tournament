@@ -71,7 +71,14 @@ const fetchHandler = async function (req: Request) {
   }
 
   if (urlPath[0] === "util") {
-    //TODO: add security check for this
+    if (req.method !== "POST" && false)
+      //TODO: remove this
+      return new Response("Method not allowed", { status: 405 });
+
+    const user = await tournament.api.users(["whoami"], req);
+    console.log(user);
+    if (user.admin !== true)
+      return new Response("Unauthorized", { status: 401 });
 
     const utilName = urlPath[1];
     const args = urlPath.slice(2);
