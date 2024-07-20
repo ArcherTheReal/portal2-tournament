@@ -1,15 +1,16 @@
+import type { BunFile } from "bun";
+
 const fs = require("fs");
 const path = require("path");
 
 //Global variable wrapper
 
 interface Tournament {
-  file: Record<string, unknown>;
-  data: Record<string, unknown>;
+  file: Record<string, BunFile>;
+  data: Record<string, any>;
   name: string;
-  api: Record<string, any>;
-  util: Record<string, unknown>;
-  keys: Record<string, any>;
+  api: Record<string, Function>;
+  util: Record<string, Function>;
 }
 declare global {
   var tournament: Tournament;
@@ -20,10 +21,15 @@ global.tournament = {
   name: "tournament",
   api: {},
   util: {},
-  keys: await Bun.file("./data/keys.json").json(),
 };
 
-//keys
+fs.readdirSync("./data").forEach((file: string) => {
+  const name = file.split(".")[0];
+  tournament.file[name] = Bun.file(`./data/${file}`);
+  tournament.data[name] = JSON.parse(
+    fs.readFileSync(`./data/${file}`, "utf-8")
+  );
+});
 
 fs.readdirSync(path.join(__dirname, "api")).forEach((file: string) => {
   if (file.endsWith(".ts")) {
