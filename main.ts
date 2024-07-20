@@ -50,7 +50,8 @@ const fetchHandler = async function (req: Request) {
         output = new Response("An error occured", { status: 500 });
       }
 
-      return output;
+      if (output instanceof Response) return output;
+      return Response.json(output);
     } else {
       return new Response("API not found");
     }
