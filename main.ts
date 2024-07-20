@@ -1,6 +1,12 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
+//Global variable wrapper
+declare global {
+  var tournament: {};
+}
+global.tournament = { file: {}, data: {}, name: "tournament" };
+
 const fetchHandler = async function (req: Request) {
   const url = new URL(req.url);
   const urlPath = url.pathname.split("/").slice(1);
