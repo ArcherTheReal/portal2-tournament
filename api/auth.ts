@@ -4,9 +4,9 @@ const jwt = require("jsonwebtoken");
 const SteamAuth = require("../steamauth");
 
 const steam = new SteamAuth({
-  realm: "http://192.168.72.1:3000/",
-  returnUrl: "http://192.168.72.1:3000/api/auth/return/",
-  apiKey: global.tournament.keys.steam,
+  realm: "http://127.0.0.1:3000/",
+  returnUrl: "http://127.0.0.1:3000/api/auth/return/",
+  apiKey: global.tournament.data.keys.steam,
 });
 
 declare global {
@@ -22,7 +22,7 @@ global.getUserToken = function (req: Request) {
     const token = cookies.find((c) => c.startsWith("steamtoken="));
     if (!token) return null;
 
-    return jwt.verify(token.split("=")[1], global.tournament.keys.jwt);
+    return jwt.verify(token.split("=")[1], global.tournament.data.keys.jwt);
   } catch (e) {
     return null;
   }
@@ -43,8 +43,7 @@ module.exports = async function (args: any[string], req: Request) {
 
       case "return":
         const user = await steam.authenticate(req);
-        console.log(user);
-        const token = jwt.sign(user, global.tournament.keys.jwt);
+        const token = jwt.sign(user, global.tournament.data.keys.jwt);
         const headers = new Headers({
           "Set-Cookie": `steamtoken=${token}; Path=/; HttpOnly; Max-Age=86400`,
           Location: "/",
