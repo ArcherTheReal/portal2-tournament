@@ -11,7 +11,14 @@ module.exports = async function (args: any[string], req: Request) {
 
     switch (action) {
       case "whoami":
-        return getUserToken(req);
+        const user = getUserToken(req);
+        if (!user) return new Response("Not logged in", { status: 401 });
+        const useraccount = tournament.data.users.find(
+          (u: any) => u.steamid == user.steamid
+        );
+        if (!useraccount)
+          return new Response("User not found", { status: 404 }); //TODO: add account create thing
+        return useraccount;
 
       default:
         return new Response("Invalid action", { status: 400 });
