@@ -1,16 +1,52 @@
-const fs = require("node:fs");
-const path = require("node:path");
+const fs = require("fs");
+const path = require("path");
 
 //Global variable wrapper
-declare global {
-  var tournament: {};
+
+interface Tournament {
+  file: Record<string, unknown>;
+  data: Record<string, unknown>;
+  name: string;
+  api: Record<string, any>;
+  util: Record<string, unknown>;
+  keys: Record<string, any>;
 }
-global.tournament = { file: {}, data: {}, name: "tournament" };
+declare global {
+  var tournament: Tournament;
+}
+global.tournament = {
+  file: {},
+  data: {},
+  name: "tournament",
+  api: {},
+  util: {},
+  keys: await Bun.file("./data/keys.json").json(),
+};
+
+//keys
+
+fs.readdirSync(path.join(__dirname, "api")).forEach((file: string) => {
+  if (file.endsWith(".ts")) {
+    const name = file.slice(0, -3);
+    tournament.api[name] = require(`./api/${name}`);
+  }
+});
 
 const fetchHandler = async function (req: Request) {
   const url = new URL(req.url);
-  const urlPath = url.pathname.split("/").slice(1);
+  const urlPath = url.pathname.split("/").slice(1).map(decodeURIComponent);
   const userAgent = req.headers.get("User-Agent");
+
+  //api
+  if (urlPath[0] === "api") {
+    const api = urlPath[1];
+    const args = urlPath.slice(2);
+    if (tournament.api[api]) {
+      return await tournament.api[api](args, req);
+    } else {
+      return new Response("API not found");
+    }
+  }
 
   return new Response("temp");
 };
