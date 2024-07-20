@@ -38,6 +38,13 @@ fs.readdirSync(path.join(__dirname, "api")).forEach((file: string) => {
   }
 });
 
+fs.readdirSync(path.join(__dirname, "util")).forEach((file: string) => {
+  if (file.endsWith(".ts")) {
+    const name = file.slice(0, -3);
+    tournament.util[name] = require(`./util/${name}`);
+  }
+});
+
 const fetchHandler = async function (req: Request) {
   const url = new URL(req.url);
   const urlPath = url.pathname.split("/").slice(1).map(decodeURIComponent);
@@ -49,7 +56,7 @@ const fetchHandler = async function (req: Request) {
     const args = urlPath.slice(2);
     const api = tournament.api[apiName];
     if (api) {
-      let output: Response;
+      let output: any;
       try {
         output = await api(args, req);
       } catch (e: any) {
@@ -63,6 +70,24 @@ const fetchHandler = async function (req: Request) {
     }
   }
 
+  if (urlPath[0] === "util") {
+    //TODO: add security check for this
+
+    const utilName = urlPath[1];
+    const args = urlPath.slice(2);
+    const util = tournament.util[utilName];
+    if (util) {
+      let output: any;
+      try {
+        output = await util(args);
+      } catch (e: any) {
+        output = "An error occured";
+      }
+      return Response.json(output);
+    } else {
+      return new Response("Util not found");
+    }
+  }
   return new Response("temp");
 };
 
