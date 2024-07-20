@@ -39,10 +39,18 @@ const fetchHandler = async function (req: Request) {
 
   //api
   if (urlPath[0] === "api") {
-    const api = urlPath[1];
+    const apiName = urlPath[1];
     const args = urlPath.slice(2);
-    if (tournament.api[api]) {
-      return await tournament.api[api](args, req);
+    const api = tournament.api[apiName];
+    if (api) {
+      let output: Response;
+      try {
+        output = await api(args, req);
+      } catch (e: any) {
+        output = new Response("An error occured", { status: 500 });
+      }
+
+      return output;
     } else {
       return new Response("API not found");
     }
