@@ -8,16 +8,16 @@ class Tournament {
   api: Record<string, any>;
   util: Record<string, unknown>;
   keys: Record<string, any>;
-  steam: SteamAuth;
+  steam: SteamAuth | null;
 
-  constructor(name: string, keys: any, steam: SteamAuth) {
+  constructor(name: string, keys: any) {
     this.file = {};
     this.data = {};
     this.name = name;
     this.api = {};
     this.util = {};
     this.keys = keys;
-    this.steam = steam;
+    this.steam = null;
   }
 }
 

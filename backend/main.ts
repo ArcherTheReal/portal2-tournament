@@ -27,13 +27,14 @@ declare global {
 
 global.tournament = new Tournament(
   "tournament",
-  await Bun.file("./keys.json").json(),
-  new SteamAuth({
-    realm: `http://localhost:${global.PORT}/`,
-    returnUrl: `http://localhost:${global.PORT}/api/v${global.api_version}/auth/return/`,
-    apiKey: global.tournament.keys.steam,
-  })
+  await Bun.file("./keys.json").json()
 );
+
+tournament.steam = new SteamAuth({
+  realm: `http://localhost:${global.PORT}/`,
+  returnUrl: `http://localhost:${global.PORT}/api/v${global.api_version}/auth/return/`,
+  apiKey: global.tournament.keys.steam,
+});
 
 //keys
 
