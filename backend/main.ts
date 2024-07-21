@@ -1,4 +1,5 @@
-import SteamAuth from "./steamauth";
+import Tournament from "./types/tournament";
+import SteamAuth from "./types/steamauth";
 
 const fs = require("fs");
 const path = require("path");
@@ -20,31 +21,19 @@ global.db = await new sqlite3.Database("./db/database.db", (err: any) => {
 
 //Global variable wrapper
 
-interface Tournament {
-  file: Record<string, unknown>;
-  data: Record<string, unknown>;
-  name: string;
-  api: Record<string, any>;
-  util: Record<string, unknown>;
-  keys: Record<string, any>;
-  steam: SteamAuth;
-}
 declare global {
   var tournament: Tournament;
 }
-global.tournament = {
-  file: {},
-  data: {},
-  name: "tournament",
-  api: {},
-  util: {},
-  keys: await Bun.file("./keys.json").json(),
-  steam: new SteamAuth({
+
+global.tournament = new Tournament(
+  "tournament",
+  await Bun.file("./keys.json").json(),
+  new SteamAuth({
     realm: `http://localhost:${global.PORT}/`,
     returnUrl: `http://localhost:${global.PORT}/api/v${global.api_version}/auth/return/`,
     apiKey: global.tournament.keys.steam,
-  }),
-};
+  })
+);
 
 //keys
 
