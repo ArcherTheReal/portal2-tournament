@@ -3,12 +3,6 @@ const path = require("node:path");
 const jwt = require("jsonwebtoken");
 const SteamAuth = require("../steamauth");
 
-const steam = new SteamAuth({
-  realm: `http://172.20.10.3:${global.PORT}/`,
-  returnUrl: `http://172.20.10.3:${global.PORT}/api/v${global.api_version}/auth/return/`,
-  apiKey: global.tournament.keys.steam,
-});
-
 declare global {
   var getUserToken: (req: Request) => any;
 }
@@ -29,59 +23,45 @@ global.getUserToken = function (req: Request) {
 };
 
 module.exports = async function (args: any[string], req: Request) {
-  const getSql = "SELECT * FROM users"
-
   if (req.method === "GET") {
     if (args.length == 0) {
-      return Response.json({
-        success: false,
-        error: "No action specified"
-      }, {
-        status: 400
-      });
+      return Response.json(
+        {
+          success: false,
+          error: "No action specified",
+        },
+        {
+          status: 400,
+        }
+      );
     }
 
     const action = args[0];
 
     switch (action) {
       case "login":
-        const url = await steam.getRedirectUrl();
+        const url = await tournament.steam.getRedirectUrl();
         return Response.redirect(url, 302);
 
       case "return":
-        const user = await steam.authenticate(req);
-        console.log(user);
+        const user = await tournament.steam.authenticate(req);
         const token = jwt.sign(user, global.tournament.keys.jwt);
         const headers = new Headers({
           "Set-Cookie": `steamtoken=${token}; Path=/; HttpOnly; Max-Age=86400`,
           Location: "/",
         });
-        const sql = "INSERT INTO users (id, steam_id, is_admin) VALUES (?, ?, 0)"
-        global.db.all(getSql, [], (err: any, data: any) => {
+        const sql = "INSERT INTO users (steamid) VALUES (?)";
+
+        global.db.run(sql, [user.steamid], (err: any, data: any) => {
           if (err) {
             return Response.json({
               success: false,
-              error: err.message
-            })
+              error: err.message,
+            });
           }
+          console.log("Successfully inserted user into db");
+        });
 
-          let nextID
-          if (data.length > 0) {
-            nextID = data[data.length - 1].id + 1
-          } else {
-            nextID = 1;
-          }
-
-          global.db.run(sql, [nextID, user.steamid], (err: any, data: any) => {
-            if (err) {
-              return Response.json({
-                success: false,
-                error: err.message
-              })
-            }
-            console.log("Successfully inserted user into db")
-          })
-        })
         return new Response(null, { headers, status: 302 });
 
       case "logout":
@@ -92,12 +72,15 @@ module.exports = async function (args: any[string], req: Request) {
         return new Response(null, { headers: newHeaders });
 
       default:
-        return Response.json({
-          success: false,
-          error: "Invalid action"
-        }, {
-          status: 400
-        });
+        return Response.json(
+          {
+            success: false,
+            error: "Invalid action",
+          },
+          {
+            status: 400,
+          }
+        );
     }
   }
 };
