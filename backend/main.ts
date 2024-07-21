@@ -1,3 +1,5 @@
+import SteamAuth from "./steamauth";
+
 const fs = require("fs");
 const path = require("path");
 declare global {
@@ -8,13 +10,13 @@ declare global {
 global.api_version = 1;
 global.PORT = 8080;
 const sqlite3 = require("sqlite3").verbose();
-global.db = new sqlite3.Database("./db/database.db", (err: any) => {
+global.db = await new sqlite3.Database("./db/database.db", (err: any) => {
   if (err) {
-    console.log(`Error connecting to db: ${err.message}`)
+    console.log(`Error connecting to db: ${err.message}`);
   } else {
-    console.log(`Successfully connected to database`)
+    console.log(`Successfully connected to database`);
   }
-})
+});
 
 //Global variable wrapper
 
@@ -25,6 +27,7 @@ interface Tournament {
   api: Record<string, any>;
   util: Record<string, unknown>;
   keys: Record<string, any>;
+  steam: SteamAuth;
 }
 declare global {
   var tournament: Tournament;
@@ -35,7 +38,12 @@ global.tournament = {
   name: "tournament",
   api: {},
   util: {},
-  keys: await Bun.file("./data/keys.json").json(),
+  keys: await Bun.file("./keys.json").json(),
+  steam: new SteamAuth({
+    realm: `http://localhost:${global.PORT}/`,
+    returnUrl: `http://localhost:${global.PORT}/api/v${global.api_version}/auth/return/`,
+    apiKey: global.tournament.keys.steam,
+  }),
 };
 
 //keys
@@ -53,7 +61,10 @@ const fetchHandler = async function (req: Request) {
   const userAgent = req.headers.get("User-Agent");
 
   //api
-  if (urlPath[0] === "api" && urlPath[1] === `v${global.api_version}`) {
+  if (urlPath[0] === "api") {
+    if (urlPath[1] !== `v${global.api_version}`)
+      return new Response("Wrong API version", { status: 400 });
+
     const apiName = urlPath[2];
     const args = urlPath.slice(3);
     const api = tournament.api[apiName];
@@ -68,21 +79,27 @@ const fetchHandler = async function (req: Request) {
       if (output instanceof Response) return output;
       return Response.json(output);
     } else {
-      return Response.json({
-        success: false,
-        error: "API endpoint not found"
-      }, {
-        status: 500
-      });
+      return Response.json(
+        {
+          success: false,
+          error: "API endpoint not found",
+        },
+        {
+          status: 500,
+        }
+      );
     }
   }
 
-  return Response.json({
-    success: false,
-    error: "Endpoint not found"
-  }, {
-    status: 500
-  })
+  return Response.json(
+    {
+      success: false,
+      error: "Endpoint not found",
+    },
+    {
+      status: 500,
+    }
+  );
 };
 
 const server = Bun.serve({
