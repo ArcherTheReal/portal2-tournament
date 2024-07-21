@@ -175,3 +175,4 @@ packages/react-devtools-timeline/dist
 #project files
 backend/db/*
 backend/bun.lockb
+keys.json
