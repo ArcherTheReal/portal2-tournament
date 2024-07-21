@@ -41,7 +41,7 @@ module.exports = async function (args: any[string], req: Request) {
             } else {
               resolve({
                 success: true,
-                user: data,
+                data: data,
               });
             }
           });
