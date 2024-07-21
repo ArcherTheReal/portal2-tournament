@@ -27,16 +27,10 @@ declare global {
 
 global.tournament = new Tournament(
   "tournament",
-  await Bun.file("./keys.json").json()
+  await Bun.file("./keys.json").json(),
+  `http://localhost:${global.PORT}/`,
+  `http://localhost:${global.PORT}/api/v${global.api_version}/auth/return/`
 );
-
-tournament.steam = new SteamAuth({
-  realm: `http://localhost:${global.PORT}/`,
-  returnUrl: `http://localhost:${global.PORT}/api/v${global.api_version}/auth/return/`,
-  apiKey: global.tournament.keys.steam,
-});
-
-//keys
 
 fs.readdirSync(path.join(__dirname, "api")).forEach((file: string) => {
   if (file.endsWith(".ts")) {
@@ -50,6 +44,8 @@ const fetchHandler = async function (req: Request) {
   const urlPath = url.pathname.split("/").slice(1).map(decodeURIComponent);
   const userAgent = req.headers.get("User-Agent");
 
+  console.log(getUserToken(req));
+  console.log(await tournament.api.users(["whoami"], req));
   //api
   if (urlPath[0] === "api") {
     if (urlPath[1] !== `v${global.api_version}`)
@@ -59,7 +55,7 @@ const fetchHandler = async function (req: Request) {
     const args = urlPath.slice(3);
     const api = tournament.api[apiName];
     if (api) {
-      let output: Response;
+      let output: any;
       try {
         output = await api(args, req);
       } catch (e: any) {
@@ -67,7 +63,9 @@ const fetchHandler = async function (req: Request) {
       }
 
       if (output instanceof Response) return output;
-      return Response.json(output);
+      let status = output.status || 200;
+      delete output.status;
+      return Response.json(output, { status: status });
     } else {
       return Response.json(
         {
@@ -75,7 +73,7 @@ const fetchHandler = async function (req: Request) {
           error: "API endpoint not found",
         },
         {
-          status: 500,
+          status: 400,
         }
       );
     }
@@ -87,7 +85,7 @@ const fetchHandler = async function (req: Request) {
       error: "Endpoint not found",
     },
     {
-      status: 500,
+      status: 400,
     }
   );
 };

@@ -24,15 +24,11 @@ global.getUserToken = function (req: Request) {
 module.exports = async function (args: any[string], req: Request) {
   if (req.method === "GET") {
     if (args.length == 0) {
-      return Response.json(
-        {
-          success: false,
-          error: "No action specified",
-        },
-        {
-          status: 400,
-        }
-      );
+      return {
+        success: false,
+        error: "No action specified",
+        status: 400,
+      };
     }
 
     const action = args[0];
@@ -71,15 +67,11 @@ module.exports = async function (args: any[string], req: Request) {
         return new Response(null, { headers: newHeaders });
 
       default:
-        return Response.json(
-          {
-            success: false,
-            error: "Invalid action",
-          },
-          {
-            status: 400,
-          }
-        );
+        return {
+          success: false,
+          error: "Invalid action",
+          status: 400,
+        };
     }
   }
 };

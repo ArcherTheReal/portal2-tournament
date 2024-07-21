@@ -9,19 +9,15 @@ module.exports = async function (args: any[string], req: Request) {
       return new Promise((resolve, reject) => {
         global.db.all(getSql, [], (err: any, data: any) => {
           if (err) {
-            resolve(
-              Response.json({
-                success: false,
-                error: err.message,
-              })
-            );
+            resolve({
+              success: false,
+              error: err.message,
+              status: 500,
+            });
           } else {
-            resolve(
-              Response.json({
-                success: true,
-                data: data,
-              })
-            );
+            resolve({
+              data: data,
+            });
           }
         });
       });
@@ -31,28 +27,33 @@ module.exports = async function (args: any[string], req: Request) {
 
     switch (action) {
       case "whoami":
-        if (getUserToken(req) == null) {
-          return Response.json({
-            success: false,
-            error: "User not found",
+        const sql = "SELECT * FROM users WHERE steamid = ?";
+        const user = getUserToken(req);
+        return new Promise((resolve, reject) => {
+          db.get(sql, [user.steamid], (err: any, data: any) => {
+            if (data === null) {
+              resolve({
+                success: false,
+                error: "User not found",
+                status: 404,
+              });
+            } else {
+              resolve({
+                success: true,
+                user: data,
+              });
+            }
           });
-        } else {
-          return Response.json({
-            success: true,
-            user: getUserToken(req),
-          });
-        }
+        });
 
       default:
-        return Response.json(
-          {
+        return new Promise((resolve, reject) => {
+          resolve({
             success: false,
             error: "Invalid action",
-          },
-          {
             status: 400,
-          }
-        );
+          });
+        });
     }
   }
 };
