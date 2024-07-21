@@ -1,7 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const jwt = require("jsonwebtoken");
-const SteamAuth = require("../steamauth");
 
 declare global {
   var getUserToken: (req: Request) => any;
