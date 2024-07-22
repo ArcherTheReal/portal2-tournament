@@ -2,25 +2,6 @@ const fs = require("node:fs");
 const path = require("node:path");
 const jwt = require("jsonwebtoken");
 
-declare global {
-  var getUserToken: (req: Request) => any;
-}
-
-global.getUserToken = function (req: Request) {
-  try {
-    const cookie = req.headers.get("Cookie");
-    if (!cookie) return null;
-
-    const cookies = cookie.split(";").map((c) => c.trim());
-    const token = cookies.find((c) => c.startsWith("steamtoken="));
-    if (!token) return null;
-
-    return jwt.verify(token.split("=")[1], global.tournament.keys.jwt);
-  } catch (e) {
-    return null;
-  }
-};
-
 module.exports = async function (args: any[string], req: Request) {
   if (req.method === "GET") {
     if (args.length == 0) {
@@ -64,7 +45,7 @@ module.exports = async function (args: any[string], req: Request) {
           "Set-Cookie": "steamtoken=; Path=/; HttpOnly; Max-Age=0",
           Location: "/",
         });
-        return new Response(null, { headers: newHeaders });
+        return new Response(null, { headers: newHeaders, status: 302 });
 
       default:
         return {

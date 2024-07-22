@@ -31,6 +31,13 @@ module.exports = async function (args: any[string], req: Request) {
         const sql = "SELECT * FROM users WHERE steamid = ?";
         const user = getUserToken(req);
         return new Promise((resolve, reject) => {
+          if (user === null) {
+            resolve({
+              success: false,
+              error: "User not authenticated",
+              status: 401,
+            });
+          }
           db.get(sql, [user.steamid], (err: any, data: any) => {
             if (data === null) {
               resolve({
