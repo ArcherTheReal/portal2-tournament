@@ -6,7 +6,7 @@ class Tournament {
   data: Record<string, any>;
   name: string;
   api: Record<string, any>;
-  util: Record<string, unknown>;
+  util: Record<string, Record<string, Function>>;
   keys: Record<string, any>;
   steam: SteamAuth;
 
