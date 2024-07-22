@@ -118,7 +118,7 @@ sql.add = async function (table: string, data: Record<string, any>) {
   });
 };
 
-sql.change = async function (
+sql.update = async function (
   table: string,
   where: Record<string, any>,
   data: Record<string, any>
