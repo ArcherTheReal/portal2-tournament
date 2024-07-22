@@ -1,12 +1,14 @@
 import Tournament from "./types/tournament";
 import SteamAuth from "./types/steamauth";
+import type { Database, sqlite3 } from "sqlite3";
 
 const fs = require("fs");
 const path = require("path");
 declare global {
   var api_version: number;
   var PORT: number;
-  var db: any;
+  var db: Database;
+  var tournament: Tournament;
 }
 global.api_version = 1;
 global.PORT = 8080;
@@ -20,10 +22,6 @@ global.db = await new sqlite3.Database("./db/database.db", (err: any) => {
 });
 
 //Global variable wrapper
-
-declare global {
-  var tournament: Tournament;
-}
 
 global.tournament = new Tournament(
   "tournament",
@@ -39,13 +37,18 @@ fs.readdirSync(path.join(__dirname, "api")).forEach((file: string) => {
   }
 });
 
+fs.readdirSync(path.join(__dirname, "util")).forEach((file: string) => {
+  if (file.endsWith(".ts")) {
+    const name = file.slice(0, -3);
+    tournament.util[name] = require(`./util/${name}`);
+  }
+});
+
 const fetchHandler = async function (req: Request) {
   const url = new URL(req.url);
   const urlPath = url.pathname.split("/").slice(1).map(decodeURIComponent);
   const userAgent = req.headers.get("User-Agent");
 
-  console.log(getUserToken(req));
-  console.log(await tournament.api.users(["whoami"], req));
   //api
   if (urlPath[0] === "api") {
     if (urlPath[1] !== `v${global.api_version}`)
@@ -55,10 +58,14 @@ const fetchHandler = async function (req: Request) {
     const args = urlPath.slice(3);
     const api = tournament.api[apiName];
     if (api) {
+      const test = await tournament.api.users(["whoami"], req);
+      console.log(test);
+      console.log(tournament.steam.fetchIdentifier(test.data.steamid));
       let output: any;
       try {
         output = await api(args, req);
       } catch (e: any) {
+        console.error(e);
         output = new Response("An error occured", { status: 500 });
       }
 
