@@ -29,7 +29,7 @@ module.exports = async function (args: any[string], req: Request) {
     switch (action) {
       case "whoami":
         const sql = "SELECT * FROM users WHERE steamid = ?";
-        const user = getUserToken(req);
+        const user = global.tournament.util.users.getUserToken(req);
         return new Promise((resolve, reject) => {
           if (user === null) {
             resolve({
@@ -48,7 +48,13 @@ module.exports = async function (args: any[string], req: Request) {
             } else {
               resolve({
                 success: true,
-                data: data,
+                data: {
+                  id: data.id,
+                  steamid: data.steamid,
+                  admin: data.admin,
+                  name: user.username,
+                  steam_user: user
+                },
               });
             }
           });

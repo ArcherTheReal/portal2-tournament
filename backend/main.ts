@@ -58,9 +58,9 @@ const fetchHandler = async function (req: Request) {
     const args = urlPath.slice(3);
     const api = tournament.api[apiName];
     if (api) {
-      const test = await tournament.api.users(["whoami"], req);
-      console.log(test);
-      console.log(tournament.steam.fetchIdentifier(test.data.steamid));
+      // const test = await tournament.api.users(["whoami"], req);
+      // console.log(test);
+      // console.log(tournament.steam.fetchIdentifier(test.data.steamid));
       let output: any;
       try {
         output = await api(args, req);
@@ -69,10 +69,17 @@ const fetchHandler = async function (req: Request) {
         output = new Response("An error occured", { status: 500 });
       }
 
+      // Set CORS headers
+      const headers = new Headers();
+      headers.set("Access-Control-Allow-Origin", "http://localhost:3000");
+      headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+      headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+      headers.set("Access-Control-Allow-Credentials", "true");
+      
       if (output instanceof Response) return output;
       let status = output.status || 200;
       delete output.status;
-      return Response.json(output, { status: status });
+      return Response.json(output, { status: status, headers: headers });
     } else {
       return Response.json(
         {
@@ -86,6 +93,13 @@ const fetchHandler = async function (req: Request) {
     }
   }
 
+  // Set CORS headers
+  const headers = new Headers();
+  headers.set("Access-Control-Allow-Origin", "http://localhost:3000");
+  headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  headers.set("Access-Control-Allow-Credentials", "true");
+
   return Response.json(
     {
       success: false,
@@ -93,6 +107,7 @@ const fetchHandler = async function (req: Request) {
     },
     {
       status: 400,
+      headers: headers
     }
   );
 };

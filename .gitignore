@@ -42,8 +42,6 @@ build/Release
 node_modules/
 jspm_packages/
 
-db/
-
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
 
@@ -173,6 +171,6 @@ packages/react-devtools-shell/dist
 packages/react-devtools-timeline/dist
 
 #project files
-backend/db/*
+backend/db/*.db
 backend/bun.lockb
 keys.json

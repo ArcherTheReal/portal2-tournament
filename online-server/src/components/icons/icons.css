@@ -1,0 +1,55 @@
+.icon__ {
+    --tl: translateX(-5px);
+    fill: var(--md-sys-color-secondary-container)
+}
+
+.icon__.n {
+    transform: var(--tl);
+}
+
+.icon__.error {
+    fill: var(--md-sys-color-error);
+    pointer-events: none;
+}
+
+.icon__.white {
+    fill: var(--md-sys-color-primary);
+    pointer-events: none;
+}
+
+.icon__arrow {
+    transition: all 0.15s ease;
+}
+
+.noflip {
+    transform: var(--tl);
+}
+
+.flipX {
+    transform: var(--tl) scaleX(-100%);
+}
+
+.flipY {
+    transform: scaleY(-100%);
+}
+
+.flip {
+    transform: scale(-100%);
+}
+
+.icon__delete {
+    --tl: translateX(-5px);
+    transition: all 0.15s ease;
+    fill: var(--md-sys-color-error-container);
+    transform: var(--tl);
+}
+
+.bp_delete {
+    --tl: translate(-5px, -2px);
+    fill: var(--md-sys-color-secondary);
+    transform: var(--tl);
+}
+
+.bp_delete:hover {
+    fill: var(--md-sys-color-error)
+}

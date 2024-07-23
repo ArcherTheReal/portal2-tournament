@@ -23,8 +23,8 @@ module.exports = async function (args: any[string], req: Request) {
         const user = await tournament.steam.authenticate(req);
         const token = jwt.sign(user, global.tournament.keys.jwt);
         const headers = new Headers({
-          "Set-Cookie": `steamtoken=${token}; Path=/; HttpOnly; Max-Age=86400`,
-          Location: "/",
+          "Set-Cookie": `steamtoken=${token}; Path=/; HttpOnly; Max-Age=86400; sameSite='None'`,
+          Location: "http://localhost:3000/",
         });
         const sql = "INSERT INTO users (steamid) VALUES (?)";
 
@@ -45,6 +45,10 @@ module.exports = async function (args: any[string], req: Request) {
           "Set-Cookie": "steamtoken=; Path=/; HttpOnly; Max-Age=0",
           Location: "/",
         });
+        newHeaders.set("Access-Control-Allow-Origin", "http://localhost:3000");
+        newHeaders.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        newHeaders.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        newHeaders.set("Access-Control-Allow-Credentials", "true");
         return new Response(null, { headers: newHeaders, status: 302 });
 
       default:
