@@ -1,15 +1,12 @@
 # portal2-tournament
+A web-based tournament and website for the Friendly Fire ON tournaments.
 
-To install dependencies:
+## Backend
+The backend is run on [bun](https://bun.sh/) and Typescript. 
 
-```bash
-bun install
-```
+## Frontend
+### Website
+The online website is built using [React](https://react.dev/).
 
-To run:
-
-```bash
-bun run main.ts
-```
-
-This project was created using `bun init` in bun v1.1.20. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+### Local server
+The local server is also run on [bun](https://bun.sh/).
