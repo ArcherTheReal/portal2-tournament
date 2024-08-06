@@ -11,6 +11,7 @@ output.success = function (data: any) {
 };
 
 output.error = function (error: string, status: Number) {
+  tournament.util.logger.logger.error(error);
   const res = {
     success: false,
     error: error,
