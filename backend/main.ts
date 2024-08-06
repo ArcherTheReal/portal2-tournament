@@ -52,7 +52,7 @@ const fetchHandler = async function (req: Request) {
   //api
   if (urlPath[0] === "api") {
     if (urlPath[1] !== `v${global.api_version}`)
-      return new Response("Wrong API version", { status: 400 });
+      return tournament.util.output.parse(tournament.util.output.error("Wrong API version", 400));
 
     const apiName = urlPath[2];
     const args = urlPath.slice(3);
@@ -66,7 +66,7 @@ const fetchHandler = async function (req: Request) {
         output = await api(args, req);
       } catch (e: any) {
         console.error(e);
-        output = new Response("An error occured", { status: 500 });
+        output = tournament.util.output.parse(tournament.util.output.error(e.message, 500));
       }
 
       // Set CORS headers
@@ -81,15 +81,7 @@ const fetchHandler = async function (req: Request) {
       delete output.status;
       return Response.json(output, { status: status, headers: headers });
     } else {
-      return Response.json(
-        {
-          success: false,
-          error: "API endpoint not found",
-        },
-        {
-          status: 400,
-        }
-      );
+      return tournament.util.output.parse(tournament.util.output.error("API not found", 400));
     }
   }
 
@@ -100,16 +92,7 @@ const fetchHandler = async function (req: Request) {
   headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
   headers.set("Access-Control-Allow-Credentials", "true");
 
-  return Response.json(
-    {
-      success: false,
-      error: "Endpoint not found",
-    },
-    {
-      status: 400,
-      headers: headers
-    }
-  );
+  return tournament.util.output.parse(tournament.util.output.error("Invalid request", 400));
 };
 
 const server = Bun.serve({
